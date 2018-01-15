@@ -1,5 +1,4 @@
 
-
 [CmdLetBinding()]
 param
 (
@@ -19,7 +18,6 @@ param
     $ssrsServer
 )
 
-
 $InformationPreference = 'Continue'
 #-----------------------------------------------------------------
 Write-Information "Migrate the DB using dbaTools"
@@ -30,8 +28,6 @@ try {
     Restore-DbaDatabase -SqlServer $targetInstance -Path $backupLocation -WithReplace
     Write-Verbose "Database restored to $($targetDatabase) on $($targetServer)"
 
-    # Write-Verbose "Restarting SSRS Service(s)"
-    # Restart-DbaSqlService -ComputerName $ssrsServer -Type SSRS
 }
 catch {
     throw (New-Object System.Exception("Error restoring from backup! $($_.Exception.Message)", $_.Exception))
@@ -51,7 +47,6 @@ catch {
     throw (New-Object System.Exception("Error setting RS Database! $($_.Exception.Message)", $_.Exception))
 }
 
-Set-RsDatabase -DatabaseServerName $targetInstance -Name $targetDatabase -IsExistingDatabase -DatabaseCredentialType ServiceAccount -ReportServerVersion $SQLVersion.Value
 #-----------------------------------------------------------------
 Write-Information "Restore the Encryption Key"
 #-----------------------------------------------------------------

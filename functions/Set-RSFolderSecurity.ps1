@@ -31,19 +31,19 @@ function Set-RSFolderSecurity {
     }
     
     process {
-        $folders = @()
-        $folders += $RsFolder
+        $folders = @()        
 
         try{
             if($Recurse){
                 Write-Verbose "List out all sub-folders under the $($RsFolder) directory"
-                $folders = Get-RsFolderContent -Proxy $proxy -Path $RSFolder -Recurse | Where-Object{$_.TypeName -eq 'Folder'} | Select-Object Path
+                $RSFolders = Get-RsFolderContent -Proxy $proxy -Path $RSFolder -Recurse | Where-Object{$_.TypeName -eq 'Folder'}
+                $folders = $RSFolders.Path
             }
             Write-Verbose "Adding Folder Parameter to Array"
             $folders += $RsFolder
            
-            foreach($folder in $folders){
-
+            foreach($folder in $folders){                
+                
                 If($Action -eq 'Add'){
                     Write-Verbose "Granting $($Identity) $($role) permissions on $($folder)"
                     Grant-RsCatalogItemRole -Proxy $proxy -Identity $Identity -RoleName $Role -Path $folder
@@ -53,8 +53,13 @@ function Set-RSFolderSecurity {
                     Revoke-RsCatalogItemAccess -Proxy $proxy -Identity $Identity -Path $folder
                 }
                 ElseIf($Action -eq 'Inherit'){
+                    $InheritParent = $true
                     Write-Verbose "Setting $($folder) to Inherit Parent Security"
-                    $Proxy.InheritParentSecurity($folder)
+                    $Proxy.GetPolicies($folder, [ref]$InheritParent)
+                    if(-not $InheritParent -and $folder -ne '/') #Cant revert perms on Root folder
+	                {
+                        $Proxy.InheritParentSecurity($folder)
+                    }
                 }
                 Else{
                     throw (New-Object System.Exception("No Valid Action provided! Use Add | Remove | Inherit"))

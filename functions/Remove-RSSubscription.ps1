@@ -37,7 +37,7 @@ function Remove-RSSubscription{
         try {
             Write-Verbose "$($subs.Count) Subscriptions will be deleted."
             foreach($sub in $subs){
-                $rsProxy.DeleteSubscription($sub.SubscriptionID)
+                $Proxy.DeleteSubscription($sub.SubscriptionID)
                 Write-Verbose "Subscription Deleted: $($sub.SubscriptionID)"
             }
         }

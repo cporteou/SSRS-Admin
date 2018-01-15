@@ -24,6 +24,8 @@ function Reset-RSScaleOut {
 
         try {
             Write-Verbose "Delete all Scale Out Keys not attributed to servers: $($serverlist)"
+            $command = "DELETE FROM [$($targetDatabase)].[dbo].[Keys] WHERE MachineName NOT IN ($($serverlist))"
+            Write-Verbose "Command: $($command)"
             Invoke-DbaSqlCmd -SqlInstance $targetInstance -Query "DELETE FROM [$($targetDatabase)].[dbo].[Keys] WHERE MachineName NOT IN ($($serverlist))"
         }
         catch {
